@@ -931,6 +931,12 @@ def _decode_asr(tokenizer, model_outputs, *, return_timestamps, return_language,
     skip = False
     right_stride_start = None
 
+    if hasattr(tokenizer, 'extra_tokens'):
+        extra_tokens = tokenizer.extra_tokens
+    else:
+        extra_tokens = []
+
+
     all_special_ids = set(tokenizer.all_special_ids)
     prompt_token_id = tokenizer.convert_tokens_to_ids("<|startofprev|>")
     decoder_start_token_id = tokenizer.convert_tokens_to_ids("<|startoftranscript|>")
@@ -1016,7 +1022,7 @@ def _decode_asr(tokenizer, model_outputs, *, return_timestamps, return_language,
                 else:
                     # 2/ This is a regular special token, ignoring it
                     pass
-            elif token >= timestamp_begin:
+            elif token >= timestamp_begin and token not in extra_tokens:
                 # 3/ Timestamp token
 
                 timestamp = float((token - timestamp_begin) * time_precision)
